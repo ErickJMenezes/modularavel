@@ -1,0 +1,21 @@
+<?php
+namespace {{NAMESPACE}};
+
+use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\ServiceProvider;
+
+class {{SERVICE_PROVIDER_NAME}} extends ServiceProvider
+{
+    public function register()
+    {
+        //
+    }
+
+    public function boot()
+    {
+        $this->loadRoutesFrom(__DIR__.'/../../routes/web.php');
+        $this->loadViewsFrom(__DIR__.'/../../resources/views', '{{LIB_NAME}}');
+        $this->loadTranslationsFrom(__DIR__.'/../../lang', '{{LIB_NAME}}');
+        Blade::componentNamespace('Libs\\{{STUDLY_LIB_NAME}}\\Views\\Components', '{{LIB_NAME}}');
+    }
+}

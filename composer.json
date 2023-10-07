@@ -8,6 +8,11 @@
             "ErickJMenezes\\Modularavel\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Tests\\": "./tests"
+        }
+    },
     "authors": [
         {
             "name": "ErickJMenezes",
@@ -29,6 +34,16 @@
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "wikimedia/composer-merge-plugin": true
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "ErickJMenezes\\Modularavel\\Providers\\ModularavelServiceProvider"
+            ],
+            "aliases": {
+                "Modularavel": "ErickJMenezes\\Modularavel\\Facades\\Modularavel"
+            }
         }
     }
 }
