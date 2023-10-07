@@ -12,10 +12,11 @@ use Illuminate\Console\Command;
 use ErickJMenezes\Modularavel\Scaffolding\Command as GeneratorCommand;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
+use Symfony\Component\Process\Process;
 
-class ModuleMakeLibCommand extends Command
+class MakeLib extends Command
 {
-    protected $signature = 'module:make
+    protected $signature = 'make:lib
                             {name : The name of the new library. Example: "shopping-cart"}';
 
     protected $description = 'Generates a new library';
@@ -97,7 +98,6 @@ class ModuleMakeLibCommand extends Command
                         "--stability=stable",
                         "--autoload=src",
                         "--require=laravel/framework:^$laravelVersion",
-                        '--require-dev=pestphp/pest:^2.21',
                         '--no-interaction',
                     ]),
                     new File('.gitignore', "/vendor\n/node_modules\n.phpunit.result.cache\n"),
@@ -113,12 +113,25 @@ class ModuleMakeLibCommand extends Command
         string $libName,
     ): void
     {
-        $composer->setWorkingPath($baseDirectory.DIRECTORY_SEPARATOR.$libName)
+        $libDir = $baseDirectory.DIRECTORY_SEPARATOR.$libName;
+        $composer->setWorkingPath($libDir)
             ->modify(function (array $file) use ($libName) {
                 $lib = Str::studly($libName);
                 $file['extra']['laravel']['providers'][] = "Libs\\{$lib}\\Providers\\{$lib}ServiceProvider";
+                $file['config']['allow-plugins']['pestphp/pest-plugin'] = true;
                 return $file;
             });
+        $composer->requirePackages(["orchestra/testbench", "pestphp/pest"], true, $this->getOutput());
+
+        (new Process(
+            [$libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest', '--init', '--no-interaction'],
+            $libDir,
+        ))->enableOutput()->run();
+
+        (new Process(
+            [$libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench', 'workbench:install'],
+            $libDir,
+        ))->enableOutput()->run();
     }
 
     private function registerLibrary(Composer $composer, string $libName): void

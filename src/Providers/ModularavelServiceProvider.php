@@ -2,8 +2,7 @@
 
 namespace ErickJMenezes\Modularavel\Providers;
 
-use ErickJMenezes\Modularavel\Commands\InstallCommand;
-use ErickJMenezes\Modularavel\Commands\ModuleMakeLibCommand;
+use ErickJMenezes\Modularavel\Commands\MakeLib;
 use ErickJMenezes\Modularavel\Scaffolding\Generator;
 use Illuminate\Support\ServiceProvider;
 
@@ -26,8 +25,7 @@ class ModularavelServiceProvider extends ServiceProvider
             self::MODULARAVEL_CONFIG_PATH => config_path('modularavel.php'),
         ]);
         $this->commands([
-            InstallCommand::class,
-            ModuleMakeLibCommand::class,
+            MakeLib::class,
         ]);
     }
 }
