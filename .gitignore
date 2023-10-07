@@ -1,0 +1,12 @@
+.idea/**/*.iws
+.idea/workspace.xml
+.idea/tasks.xml
+
+/vendor/
+node_modules/
+
+npm-debug.log
+yarn-error.log
+
+.phpunit.result.cache
+
