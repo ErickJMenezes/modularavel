@@ -112,6 +112,7 @@ class MakeLib extends Command
                         'require',
                         'orchestra/testbench',
                         'pestphp/pest',
+                        'pestphp/pest-plugin-laravel',
                         '--dev',
                     ]),
                     new GeneratorCommand([

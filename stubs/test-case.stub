@@ -2,9 +2,16 @@
 
 namespace Libs\{{STUDLY_LIB_NAME}}\Tests;
 
+use Libs\{{STUDLY_LIB_NAME}}\Providers\{{STUDLY_LIB_NAME}}ServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
 {
-    //
+    protected function getPackageProviders($app)
+    {
+        return [
+            {{STUDLY_LIB_NAME}}ServiceProvider::class,
+            // Register other Service Providers here.
+        ];
+    }
 }
