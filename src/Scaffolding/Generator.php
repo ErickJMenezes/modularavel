@@ -16,8 +16,14 @@ class Generator
                     file_put_contents($filename, $entity->contents);
                 }
             } elseif ($entity instanceof Command) {
-                $console = new Process($entity->commands, $baseDirectory);
-                $console->run();
+                $process = new Process($entity->commands, $baseDirectory);
+                $process->enableOutput();
+                $process->setPty(true);
+                $process->setTty(true);
+                $process->start();
+                while ($process->isRunning()) {
+                    echo $process->getIncrementalOutput();
+                }
             } elseif ($entity instanceof Folder) {
                 $folder = implode(DIRECTORY_SEPARATOR, [$baseDirectory, $entity->name]);
                 if (!is_dir($folder)) {

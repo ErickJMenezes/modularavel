@@ -3,16 +3,17 @@
 namespace ErickJMenezes\Modularavel\Commands;
 
 use Composer\InstalledVersions;
-use ErickJMenezes\Modularavel\Scaffolding\ServiceProviderFile;
+use ErickJMenezes\Modularavel\Scaffolding\Command as GeneratorCommand;
 use ErickJMenezes\Modularavel\Scaffolding\File;
 use ErickJMenezes\Modularavel\Scaffolding\Folder;
-use ErickJMenezes\Modularavel\Scaffolding\Tree;
 use ErickJMenezes\Modularavel\Scaffolding\Generator;
+use ErickJMenezes\Modularavel\Scaffolding\Stubs\PestMainFile;
+use ErickJMenezes\Modularavel\Scaffolding\Stubs\ServiceProviderFile;
+use ErickJMenezes\Modularavel\Scaffolding\Stubs\TestCaseFile;
+use ErickJMenezes\Modularavel\Scaffolding\Tree;
 use Illuminate\Console\Command;
-use ErickJMenezes\Modularavel\Scaffolding\Command as GeneratorCommand;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
-use Symfony\Component\Process\Process;
 
 class MakeLib extends Command
 {
@@ -78,29 +79,64 @@ class MakeLib extends Command
                         ])),
                     ])),
                     new Folder('routes', new Tree([
-                        new File("web.php", "<?php")
+                        new File("web.php", "<?php\n\nuse Illuminate\Support\Facades\Route;\n")
                     ])),
                     new Folder('config', new Tree([
                         new File("$libName.php", "<?php\n\nreturn [];")
-                    ])),
-                    new Folder('lang', new Tree([
-                        new File('.gitkeep'),
                     ])),
                     new Folder('resources', new Tree([
                         new Folder('views', new Tree([
                             new File('.gitkeep'),
                         ])),
+                        new Folder('lang', new Tree([
+                            new File('.gitkeep'),
+                        ])),
                     ])),
+                    new File('.gitignore', "/vendor\n/node_modules\n.phpunit.result.cache\n"),
+                    //
                     new GeneratorCommand([
                         'composer',
                         'init',
                         "--name=libs/$libName",
                         "--stability=stable",
                         "--autoload=src",
-                        "--require=laravel/framework:^$laravelVersion",
                         '--no-interaction',
                     ]),
-                    new File('.gitignore', "/vendor\n/node_modules\n.phpunit.result.cache\n"),
+                    new GeneratorCommand([
+                        'composer',
+                        'require',
+                        "laravel/framework:^$laravelVersion",
+                    ]),
+                    new GeneratorCommand([
+                        'composer',
+                        'require',
+                        'orchestra/testbench',
+                        'pestphp/pest',
+                        '--dev',
+                    ]),
+                    new GeneratorCommand([
+                        'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench',
+                        'workbench:install',
+                        '--no-interaction',
+                    ]),
+                    new GeneratorCommand([
+                        'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest',
+                        '--init',
+                        '--no-interaction',
+                    ]),
+                    new GeneratorCommand([
+                        'rm',
+                        '-rf',
+                        'workbench',
+                        'testbench.yaml',
+                        'tests/Pest.php',
+                        'tests/TestCase.php',
+                    ]),
+                    new File('testbench.yaml', 'laravel: ../../.'),
+                    new Folder('tests', new Tree([
+                        new TestCaseFile($libName),
+                        new PestMainFile($libName),
+                    ]))
                 ])),
             ]),
             $baseDirectory,
@@ -118,20 +154,18 @@ class MakeLib extends Command
             ->modify(function (array $file) use ($libName) {
                 $lib = Str::studly($libName);
                 $file['extra']['laravel']['providers'][] = "Libs\\{$lib}\\Providers\\{$lib}ServiceProvider";
-                $file['config']['allow-plugins']['pestphp/pest-plugin'] = true;
+                $file['type'] = 'library';
+                $file['description'] = "internal library";
+                $file['license'] = 'MIT';
+                $file['autoload-dev'] = [
+                    'files' => [
+                        '../../vendor/autoload.php',
+                        'tests/TestCase.php',
+                    ]
+                ];
                 return $file;
             });
-        $composer->requirePackages(["orchestra/testbench", "pestphp/pest"], true, $this->getOutput());
-
-        (new Process(
-            [$libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest', '--init', '--no-interaction'],
-            $libDir,
-        ))->enableOutput()->run();
-
-        (new Process(
-            [$libDir.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench', 'workbench:install'],
-            $libDir,
-        ))->enableOutput()->run();
+        $composer->dumpAutoloads();
     }
 
     private function registerLibrary(Composer $composer, string $libName): void

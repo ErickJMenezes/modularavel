@@ -1,0 +1,10 @@
+<?php
+
+namespace Libs\{{STUDLY_LIB_NAME}}\Tests;
+
+use Orchestra\Testbench\TestCase as BaseTestCase;
+
+abstract class TestCase extends BaseTestCase
+{
+    //
+}
