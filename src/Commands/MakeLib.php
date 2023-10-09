@@ -15,6 +15,12 @@ use Illuminate\Console\Command;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
 
+/**
+ * Class MakeLib.
+ *
+ * @author ErickJMenezes <erickmenezes.dev@gmail.com>
+ * @codeCoverageIgnore Skipping until test is created
+ */
 class MakeLib extends Command
 {
     protected $signature = 'make:lib

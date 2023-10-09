@@ -1,0 +1,15 @@
+providers:
+  - ErickJMenezes\Modularavel\Providers\ModularavelServiceProvider
+
+migrations:
+  - workbench/database/migrations
+
+seeders: []
+
+workbench:
+  start: '/'
+  install: true
+  welcome: true
+  build: []
+  assets: []
+  sync: []
