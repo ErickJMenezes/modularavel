@@ -1,8 +1,8 @@
-<?php
+<?= '<?php' ?>
 
-namespace Libs\{{STUDLY_LIB_NAME}}\Tests;
+namespace Libs\<?= getenv('STUDLY_LIB_NAME') ?>\Tests;
 
-use Libs\{{STUDLY_LIB_NAME}}\Providers\{{STUDLY_LIB_NAME}}ServiceProvider;
+use Libs\<?= getenv('STUDLY_LIB_NAME') ?>\Providers\<?= getenv('STUDLY_LIB_NAME') ?>ServiceProvider;
 use Orchestra\Testbench\TestCase as BaseTestCase;
 
 abstract class TestCase extends BaseTestCase
@@ -10,7 +10,7 @@ abstract class TestCase extends BaseTestCase
     protected function getPackageProviders($app)
     {
         return [
-            {{STUDLY_LIB_NAME}}ServiceProvider::class,
+            <?= getenv('STUDLY_LIB_NAME') ?>ServiceProvider::class,
             // Register other Service Providers here.
         ];
     }

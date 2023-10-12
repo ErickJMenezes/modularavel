@@ -8,7 +8,7 @@ readonly class ServiceProviderFile extends AbstractStub
     {
         $studlyLibName = str($libName)->studly();
 
-        parent::__construct("{$studlyLibName}ServiceProvider.php", 'service-provider.stub', [
+        parent::__construct("{$studlyLibName}ServiceProvider.php", 'service-provider.stub.php', [
             'LIB_NAME' => $libName,
             'STUDLY_LIB_NAME' => $studlyLibName,
         ]);

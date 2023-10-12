@@ -3,6 +3,8 @@
 namespace ErickJMenezes\Modularavel\Scaffolding\Stubs;
 
 use ErickJMenezes\Modularavel\Scaffolding\File;
+use Symfony\Component\Process\PhpExecutableFinder;
+use Symfony\Component\Process\Process;
 
 abstract readonly class AbstractStub extends File
 {
@@ -20,17 +22,13 @@ abstract readonly class AbstractStub extends File
      */
     private function buildStub(array $replacements, string $stubFileName): string
     {
-        return str_replace(
-            array_map(fn (string $value) => '{{'.$value.'}}', array_keys($replacements)),
-            array_map(fn (string|\Stringable $value) => (string) $value, array_values($replacements)),
-            file_get_contents(implode(DIRECTORY_SEPARATOR, [
-                __DIR__,
-                '..',
-                '..',
-                '..',
-                'stubs',
-                $stubFileName
-            ])),
+        $phpFinder = new PhpExecutableFinder();
+        $phpProcess = new Process(
+            [$phpFinder->find(), ...$phpFinder->findArguments(), $stubFileName],
+            implode(DIRECTORY_SEPARATOR, [__DIR__, '..', '..', '..', 'stubs']),
+            $replacements,
         );
+        $phpProcess->run();
+        return $phpProcess->getOutput();
     }
 }

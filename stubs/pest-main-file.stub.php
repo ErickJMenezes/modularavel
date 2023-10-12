@@ -1,4 +1,4 @@
-<?php
+<?= '<?php' ?>
 
 /*
 |--------------------------------------------------------------------------
@@ -11,7 +11,7 @@
 |
 */
 
-uses(Libs\{{STUDLY_LIB_NAME}}\Tests\TestCase::class)->in('Unit', 'Feature');
+uses(Libs\<?= getenv('STUDLY_LIB_NAME') ?>\Tests\TestCase::class)->in('Unit', 'Feature');
 
 /*
 |--------------------------------------------------------------------------
