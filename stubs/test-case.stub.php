@@ -1,4 +1,4 @@
-<?= '<?php' ?>
+<?= "<?php\n" ?>
 
 namespace Libs\<?= getenv('STUDLY_LIB_NAME') ?>\Tests;
 

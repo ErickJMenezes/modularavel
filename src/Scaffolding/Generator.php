@@ -30,6 +30,12 @@ class Generator
                     mkdir($folder, 0755, true);
                 }
                 $this->generate($entity->children, $folder);
+            } elseif ($entity instanceof When) {
+                if ($entity->condition) {
+                    $this->generate(new Tree([$entity->directive]), $baseDirectory);
+                }
+            } elseif ($entity instanceof Tree) {
+                $this->generate($entity, $baseDirectory);
             }
         }
     }

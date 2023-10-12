@@ -11,20 +11,21 @@ use ErickJMenezes\Modularavel\Scaffolding\Stubs\PestMainFile;
 use ErickJMenezes\Modularavel\Scaffolding\Stubs\ServiceProviderFile;
 use ErickJMenezes\Modularavel\Scaffolding\Stubs\TestCaseFile;
 use ErickJMenezes\Modularavel\Scaffolding\Tree;
+use ErickJMenezes\Modularavel\Scaffolding\When;
 use Illuminate\Console\Command;
 use Illuminate\Support\Composer;
 use Illuminate\Support\Str;
 
-/**
- * Class MakeLib.
- *
- * @author ErickJMenezes <erickmenezes.dev@gmail.com>
- * @codeCoverageIgnore Skipping until test is created
- */
 class MakeLib extends Command
 {
     protected $signature = 'make:lib
-                            {name : The name of the new library. Example: "shopping-cart"}';
+                            {name : The name of the new library. Example: "shopping-cart".}
+                            {--with-routes : Creates the lib with pre-configured routes file and controllers folder structure.}
+                            {--with-views : Creates the lib with pre-configured views folder.}
+                            {--with-commands : Creates the lib with pre-created commands folder.}
+                            {--with-config-file : The library will publish a config file.}
+                            {--with-migrations : Creates the lib with pre-configured migrations folder.}
+                            {--minimal : Creates the lib without the default packages (pest, laravel/framework, and pre-configured testbench). The configuration is by yourself.}';
 
     protected $description = 'Generates a new library';
 
@@ -63,41 +64,73 @@ class MakeLib extends Command
             new Tree([
                 new Folder($libName, new Tree([
                     new Folder('src', new Tree([
-                        new Folder('Commands', new Tree([
-                            new File('.gitkeep'),
-                        ])),
-                        new Folder('Http', new Tree([
-                            new Folder('Controllers', new Tree([
+                        new When(
+                            $this->option('with-commands'),
+                            new Folder('Commands', new Tree([
                                 new File('.gitkeep'),
-                            ])),
-                            new Folder('Requests', new Tree([
-                                new File('.gitkeep'),
-                            ])),
-                            new Folder('Resources', new Tree([
-                                new File('.gitkeep'),
-                            ])),
-                        ])),
-                        new Folder('Models', new Tree([
-                            new File('.gitkeep'),
-                        ])),
+                            ]))
+                        ),
+                        new When(
+                            $this->option('with-routes'),
+                            new Folder('Http', new Tree([
+                                new Folder('Controllers', new Tree([
+                                    new File('.gitkeep'),
+                                ])),
+                                new Folder('Requests', new Tree([
+                                    new File('.gitkeep'),
+                                ])),
+                                new Folder('Resources', new Tree([
+                                    new File('.gitkeep'),
+                                ])),
+                            ]))
+                        ),
                         new Folder('Providers', new Tree([
-                            new ServiceProviderFile($libName)
+                            new ServiceProviderFile(
+                                $libName,
+                                $this->option('with-routes'),
+                                $this->option('with-views'),
+                                $this->option('with-config-file'),
+                                $this->option('with-migrations'),
+                            )
                         ])),
+                        new When(
+                            $this->option('with-migrations'),
+                            new Folder('Models', new Tree([
+                                new File('.gitkeep'),
+                            ]))
+                        )
                     ])),
-                    new Folder('routes', new Tree([
-                        new File("web.php", "<?php\n\nuse Illuminate\Support\Facades\Route;\n")
-                    ])),
-                    new Folder('config', new Tree([
-                        new File("$libName.php", "<?php\n\nreturn [];")
-                    ])),
-                    new Folder('resources', new Tree([
-                        new Folder('views', new Tree([
-                            new File('.gitkeep'),
-                        ])),
-                        new Folder('lang', new Tree([
-                            new File('.gitkeep'),
-                        ])),
-                    ])),
+                    new When(
+                        $this->option('with-routes'),
+                        new Folder('routes', new Tree([
+                            new File("web.php", "<?php\n\nuse Illuminate\Support\Facades\Route;\n")
+                        ]))
+                    ),
+                    new When(
+                        $this->option('with-config-file'),
+                        new Folder('config', new Tree([
+                            new File("$libName.php", "<?php\n\nreturn [];")
+                        ]))
+                    ),
+                    new When(
+                        $this->option('with-views'),
+                        new Folder('resources', new Tree([
+                            new Folder('views', new Tree([
+                                new File('.gitkeep'),
+                            ])),
+                            new Folder('lang', new Tree([
+                                new File('.gitkeep'),
+                            ])),
+                        ]))
+                    ),
+                    new When(
+                        $this->option('with-migrations'),
+                        new Folder('database', new Tree([
+                            new Folder('migrations', new Tree([
+                                new File('.gitkeep'),
+                            ]))
+                        ]))
+                    ),
                     new File('.gitignore', "/vendor\n/node_modules\n.phpunit.result.cache\n"),
                     //
                     new GeneratorCommand([
@@ -108,42 +141,47 @@ class MakeLib extends Command
                         "--autoload=src",
                         '--no-interaction',
                     ]),
-                    new GeneratorCommand([
-                        'composer',
-                        'require',
-                        "laravel/framework:^$laravelVersion",
-                    ]),
-                    new GeneratorCommand([
-                        'composer',
-                        'require',
-                        'orchestra/testbench',
-                        'pestphp/pest',
-                        'pestphp/pest-plugin-laravel',
-                        '--dev',
-                    ]),
-                    new GeneratorCommand([
-                        'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench',
-                        'workbench:install',
-                        '--no-interaction',
-                    ]),
-                    new GeneratorCommand([
-                        'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest',
-                        '--init',
-                        '--no-interaction',
-                    ]),
-                    new GeneratorCommand([
-                        'rm',
-                        '-rf',
-                        'workbench',
-                        'testbench.yaml',
-                        'tests/Pest.php',
-                        'tests/TestCase.php',
-                    ]),
-                    new File('testbench.yaml', 'laravel: ../../.'),
-                    new Folder('tests', new Tree([
-                        new TestCaseFile($libName),
-                        new PestMainFile($libName),
-                    ]))
+                    new When(
+                        !$this->option('minimal'),
+                        new Tree([
+                            new GeneratorCommand([
+                                'composer',
+                                'require',
+                                "laravel/framework:^$laravelVersion",
+                            ]),
+                            new GeneratorCommand([
+                                'composer',
+                                'require',
+                                'orchestra/testbench',
+                                'pestphp/pest',
+                                'pestphp/pest-plugin-laravel',
+                                '--dev',
+                            ]),
+                            new GeneratorCommand([
+                                'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench',
+                                'workbench:install',
+                                '--no-interaction',
+                            ]),
+                            new GeneratorCommand([
+                                'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest',
+                                '--init',
+                                '--no-interaction',
+                            ]),
+                            new GeneratorCommand([
+                                'rm',
+                                '-rf',
+                                'workbench',
+                                'testbench.yaml',
+                                'tests/Pest.php',
+                                'tests/TestCase.php',
+                            ]),
+                            new File('testbench.yaml', 'laravel: ../../.'),
+                            new Folder('tests', new Tree([
+                                new TestCaseFile($libName),
+                                new PestMainFile($libName),
+                            ]))
+                        ])
+                    ),
                 ])),
             ]),
             $baseDirectory,
@@ -172,18 +210,24 @@ class MakeLib extends Command
                 ];
                 return $file;
             });
-        $composer->dumpAutoloads();
+        if (!$this->option('minimal')) {
+            $composer->dumpAutoloads();
+        }
     }
 
     private function registerLibrary(Composer $composer, string $libName): void
     {
         $composer->setWorkingPath(base_path())
             ->modify(function (array $file) use ($libName) {
-                $file['repositories'][] = [
-                    'type' => 'path',
-                    'url' => "libs/$libName",
-                    'symlink' => true,
-                ];
+                $repos = array_filter($file['repositories'] ?? [],
+                    fn ($item) => ($item['url'] ?? null) === "libs/$libName");
+                if (empty($repos)) {
+                    $file['repositories'][] = [
+                        'type' => 'path',
+                        'url' => "libs/$libName",
+                        'symlink' => true,
+                    ];
+                }
                 return $file;
             });
         $composer->requirePackages(["libs/$libName:@dev"], output: $this->getOutput());

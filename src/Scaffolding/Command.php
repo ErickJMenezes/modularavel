@@ -2,7 +2,7 @@
 
 namespace ErickJMenezes\Modularavel\Scaffolding;
 
-readonly class Command
+readonly class Command implements GeneratorDirectiveInterface
 {
     /**
      * @param array<string> $commands
