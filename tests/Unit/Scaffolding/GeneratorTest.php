@@ -78,6 +78,8 @@ describe('Generator Test', function () {
             ->toBeFile()
             ->and("$trashcan/TestServiceProvider.php")
             ->toBeFile()
+            ->and(file_get_contents("$trashcan/TestServiceProvider.php"))
+            ->toContain('TestServiceProvider', 'Libs\\Test\\Providers')
             ->and("$trashcan/TestCase.php")
             ->toBeFile();
     });
