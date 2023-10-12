@@ -17,7 +17,9 @@ composer require erickjmenezes/modularavel
 ```shell
 php artisan make:lib <lib-name>
 ```
-With this command, the package will generate a new library inside `$PROJECT_ROOT$/libs/<lib-name>`. Here you can develop and test your brand-new functionality, without affecting the existing ones.
+With this command, the package will generate a new library,
+with minimal basic structure, inside `$PROJECT_ROOT$/libs/<lib-name>`.
+Here you can develop and test your brand-new functionality, without affecting the existing ones.
 
 **THAT'S IT!**
 
@@ -53,6 +55,15 @@ Take a look in the generated structure:
         ├── vendor/
         ├── composer.json
         └── composer.lock
+```
+
+### Customization
+
+By default, the generated library will not have all the folders you see above.
+You must choose what you want.
+Run the following command to see what you can customize:
+```shell
+php artisan make:lib --help
 ```
 
 ### The generated library...
