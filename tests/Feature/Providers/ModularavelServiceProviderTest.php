@@ -1,6 +1,7 @@
 <?php
 
 use ErickJMenezes\Modularavel\Scaffolding\Generator;
+use ErickJMenezes\Modularavel\UseCases\GenerateLibrary;
 
 describe('Service provider test', function () {
    it('has configs', function () {
@@ -9,7 +10,10 @@ describe('Service provider test', function () {
            ->not->toBeEmpty();
    });
 
-   it('must bound the generator', function () {
-       expect(app()->bound(Generator::class))->toBeTrue();
-   });
+   it('must bound classes', function (string $className) {
+       expect(app()->bound($className))->toBeTrue();
+   })->with([
+       Generator::class,
+       GenerateLibrary::class,
+   ]);
 });

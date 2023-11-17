@@ -4,6 +4,9 @@ namespace ErickJMenezes\Modularavel\Providers;
 
 use ErickJMenezes\Modularavel\Commands\MakeLib;
 use ErickJMenezes\Modularavel\Scaffolding\Generator;
+use ErickJMenezes\Modularavel\UseCases\GenerateLibrary;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Support\Composer;
 use Illuminate\Support\ServiceProvider;
 
 class ModularavelServiceProvider extends ServiceProvider
@@ -17,6 +20,15 @@ class ModularavelServiceProvider extends ServiceProvider
         );
 
         $this->app->bind(Generator::class);
+
+        $this->app->bind(GenerateLibrary::class, function (Application $app) {
+            return new GenerateLibrary(
+                $app->make(Generator::class),
+                $app->make(Composer::class),
+                config('modularavel.libraries_directory'),
+                base_path(),
+            );
+        });
     }
 
     public function boot()
