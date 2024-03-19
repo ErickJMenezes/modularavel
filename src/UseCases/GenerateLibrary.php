@@ -165,7 +165,6 @@ readonly class GenerateLibrary
                             new GeneratorCommand([
                                 'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'testbench',
                                 'workbench:install',
-                                '--no-interaction',
                             ]),
                             new GeneratorCommand([
                                 'vendor'.DIRECTORY_SEPARATOR.'bin'.DIRECTORY_SEPARATOR.'pest',
