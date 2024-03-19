@@ -1,5 +1,7 @@
 # Modularavel
 
+> PLEASE, NEVER USE THIS PACKAGE.
+
 In huge Laravel projects, we often need to deal with multiple route files, or hundreds of models, or hundreds of controllers, and the project becomes harder and harder to maintain. But how to avoid?
 
 The concept of this package is to provide the ability to create small packages, or libraries, inside your Laravel project, without losing the comfort of the monorepo architecture.
